@@ -17,6 +17,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--threshold", type=float, default=0.6)
     parser.add_argument("--timeout", type=float, default=1.5)
     parser.add_argument("--pretty", action="store_true")
+    parser.add_argument(
+        "--laya-only",
+        action="store_true",
+        help="Only output the Laya classification response.",
+    )
     return parser
 
 
@@ -35,8 +40,9 @@ def main(argv: list[str] | None = None) -> int:
         threshold=args.threshold,
         timeout_seconds=args.timeout,
     )
+    output = result["laya_response"] if args.laya_only else result
     indent = 2 if args.pretty else None
-    print(json.dumps(result, ensure_ascii=False, indent=indent, sort_keys=bool(indent)))
+    print(json.dumps(output, ensure_ascii=False, indent=indent, sort_keys=bool(indent)))
     return 0
 
 

@@ -28,6 +28,13 @@ uv run laya-mre "英雄聯盟的大亂鬥是什麼？"
 
 輸出會同時保留 `rule_parse`、原始 `laya_response` 與 `merged`，方便逐步比對。
 
+若只需要 Laya 的分類結果，使用 `--laya-only`；搭配 `--backend laya` 時會輸出真實
+`laya-multilingual` 的 response，不包含規則解析、合併政策或 timing：
+
+```powershell
+uv run laya-mre --backend laya --laya-only "英雄聯盟的大亂鬥是什麼？"
+```
+
 ## 使用真實 Laya
 
 MRE 的 adapter 延續本專案的 typed contract：呼叫 `laya.load(...)`，再以
