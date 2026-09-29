@@ -11,6 +11,10 @@
 
 本專案使用 `uv` 管理環境與依賴；CLI 入口是 `laya-mre`，請透過 `uv run` 執行。
 
+## 流程圖
+
+主流程的 Mermaid 圖位於 [`docs/project-flow.md`](docs/project-flow.md)。
+
 ## 快速開始
 
 在 repository 根目錄執行：
