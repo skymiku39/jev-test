@@ -9,19 +9,21 @@
 這裡沒有任何外部事件傳輸、資料庫、直播音訊或問答回答模型整合。預設使用固定的
 `fixture` typed backend，因此不需要下載模型、不需要網路，也不需要啟動其他服務。
 
+本專案使用 `uv` 管理環境與依賴；CLI 入口是 `laya-mre`，請透過 `uv run` 執行。
+
 ## 快速開始
 
+在 repository 根目錄執行：
+
 ```powershell
-cd C:\dev\streamsuite-laya-mre
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[test]"
-.\.venv\Scripts\python.exe -m pytest -q
+uv sync --extra test
+uv run pytest -q
 ```
 
 直接跑一題：
 
 ```powershell
-.\.venv\Scripts\python.exe -m laya_flow "英雄聯盟的大亂鬥是什麼？"
+uv run laya-mre "英雄聯盟的大亂鬥是什麼？"
 ```
 
 輸出會同時保留 `rule_parse`、原始 `laya_response` 與 `merged`，方便逐步比對。
@@ -32,12 +34,16 @@ MRE 的 adapter 延續本專案的 typed contract：呼叫 `laya.load(...)`，�
 `agent.predict(state, questions)` 取得 `{ "answers": ... }`。模型依賴是 optional，且只允許
 使用本機已有的 checkpoint／cache；MRE 不會在 pipeline 執行期間下載權重。
 
+`model` extra 使用 PyPI 的真實 `laya` 套件，版本解析結果由 `uv.lock` 管理。可用以下命令
+確認目前環境載入的是實際套件：
+
 ```powershell
 # 依目前機器的 Laya 安裝方式準備 optional model dependencies
-\.venv\Scripts\python.exe -m pip install -e ".[model]"
+uv sync --extra model
+uv run --extra model python -c "import laya; print(laya.__version__)"
 $env:LAYA_MODEL = "multilingual"
 $env:LAYA_DEVICE = "auto"
-\.venv\Scripts\python.exe -m laya_flow --backend laya "如何調整 Ollama 設定？"
+uv run laya-mre --backend laya "如何調整 Ollama 設定？"
 ```
 
 若模型未安裝或 cache 不存在，請先用預設 `fixture` backend 重現規則與政策行為；這不會
