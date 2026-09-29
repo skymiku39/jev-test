@@ -37,11 +37,17 @@ MRE 的 adapter 延續本專案的 typed contract：呼叫 `laya.load(...)`，�
 `model` extra 使用 PyPI 的真實 `laya` 套件，版本解析結果由 `uv.lock` 管理。可用以下命令
 確認目前環境載入的是實際套件：
 
+本專案預設使用多語模型 checkpoint `convaiinnovations/laya-multilingual`；它不是另一個
+PyPI 套件，Python 套件名稱仍是 `laya`。
+
 ```powershell
 # 依目前機器的 Laya 安裝方式準備 optional model dependencies
 uv sync --extra model
+# 一次性下載 laya-multilingual checkpoint 到 Hugging Face cache
+uv run --extra model python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='convaiinnovations/laya-multilingual')"
 uv run --extra model python -c "import laya; print(laya.__version__)"
-$env:LAYA_MODEL = "multilingual"
+$env:LAYA_REPOSITORY = "convaiinnovations/laya-multilingual"
+$env:LAYA_MODEL = "laya-multilingual"
 $env:LAYA_DEVICE = "auto"
 uv run laya-mre --backend laya "如何調整 Ollama 設定？"
 ```

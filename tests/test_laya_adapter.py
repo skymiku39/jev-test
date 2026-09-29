@@ -3,6 +3,14 @@ from __future__ import annotations
 from laya_flow.laya import LayaSettings, LayaTypedDecisionClient
 
 
+def test_multilingual_defaults_use_the_dedicated_checkpoint() -> None:
+    settings = LayaSettings()
+
+    assert settings.repository == "convaiinnovations/laya-multilingual"
+    assert settings.model == "laya-multilingual"
+    assert settings.checkpoint_id == "convaiinnovations/laya-multilingual"
+
+
 def test_typed_adapter_adds_local_model_metadata_without_changing_answers() -> None:
     class RawClient:
         settings = LayaSettings(repository="fixture/repo", model="multilingual")

@@ -11,8 +11,8 @@ from typing import Any, Callable, Mapping
 
 from .contracts import JsonObject, QuestionSpec
 
-DEFAULT_REPOSITORY = "convaiinnovations/laya"
-DEFAULT_MODEL = "multilingual"
+DEFAULT_REPOSITORY = "convaiinnovations/laya-multilingual"
+DEFAULT_MODEL = "laya-multilingual"
 DEFAULT_DEVICE = "auto"
 
 
@@ -26,6 +26,16 @@ class LayaSettings:
     model: str = DEFAULT_MODEL
     device: str = DEFAULT_DEVICE
     timeout_seconds: float = 1.5
+
+    @property
+    def checkpoint_id(self) -> str:
+        """Return the model identifier used in provider metadata."""
+
+        repository = self.repository.rstrip("/")
+        repository_name = Path(repository).name
+        if repository_name == "laya-multilingual" or not self.model or self.model == repository_name:
+            return repository
+        return f"{repository}/{self.model}"
 
     @classmethod
     def from_env(
@@ -86,7 +96,11 @@ class LayaClient:
         started = time.perf_counter()
         try:
             known_subfolders = {"multilingual", "typed-decisions", "english"}
-            if self.settings.model in known_subfolders:
+            is_bundled_subfolder = (
+                self.settings.model in known_subfolders
+                and Path(self.settings.repository.rstrip("/")).name == "laya"
+            )
+            if is_bundled_subfolder:
                 repository = self.settings.repository
                 if not Path(repository).exists():
                     try:
@@ -110,9 +124,22 @@ class LayaClient:
                     self.resolved_revision = Path(repository).name
                 self._agent = module.load(repository, subfolder=self.settings.model, device=device)
             else:
-                selected = self.settings.model
+                selected = self.settings.repository
                 if not Path(selected).exists():
-                    raise LayaError("Laya model must be a local path or a named subfolder")
+                    try:
+                        from huggingface_hub import snapshot_download
+                    except ImportError as exc:
+                        raise LayaError("huggingface-hub is required for a local-cache model") from exc
+                    try:
+                        selected = snapshot_download(
+                            repo_id=selected,
+                            local_files_only=True,
+                        )
+                    except Exception as exc:
+                        raise LayaError(
+                            f"Laya checkpoint is not available in the local cache: {self.settings.checkpoint_id}"
+                        ) from exc
+                    self.resolved_revision = Path(selected).name
                 self._agent = module.load(selected, device=device)
         except LayaError:
             raise
@@ -171,7 +198,7 @@ class LayaTypedDecisionClient:
     def __init__(self, client: LayaClient | None = None) -> None:
         self.client = client or LayaClient()
         self.settings = self.client.settings
-        self.model = f"{self.settings.repository}/{self.settings.model}"
+        self.model = self.settings.checkpoint_id
 
     def warmup(self) -> None:
         self.client.warmup()
