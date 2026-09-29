@@ -1,0 +1,31 @@
+[
+  {
+    "id": "named-game-fact",
+    "question": "英雄聯盟的大亂鬥是什麼？",
+    "expected_primary": "game_info",
+    "expected_profile": "game_official_info"
+  },
+  {
+    "id": "commerce-policy",
+    "question": "這款遊戲台灣多少錢？",
+    "expected_tag": "commerce",
+    "expected_profile": "store_price_tw",
+    "expected_need": "evidence_contract"
+  },
+  {
+    "id": "live-title",
+    "question": "現在直播標題是什麼？",
+    "expected_primary": "live_now"
+  },
+  {
+    "id": "contextual-followup",
+    "question": "你覺得呢？",
+    "expected_primary": "session_banter"
+  },
+  {
+    "id": "technical-howto",
+    "question": "如何調整 Ollama 設定？",
+    "expected_primary": "howto_tech",
+    "expected_profile": "official_tech_docs"
+  }
+]
